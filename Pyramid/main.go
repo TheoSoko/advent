@@ -10,19 +10,27 @@ func main() {
 	start := size / 2
 	end := size / 2
 
-	for true {
+	prLine := func(size int, start int, end int) {
 		for i := 0; i <= size; i++ {
-			if i >= start && i <= end {
+			if start <= i && i <= end {
 				fmt.Printf("*")
 			} else {
 				fmt.Printf(" ")
 			}
 		}
-		start -= 2
-		end += 2
+	}
+
+	for {
+		i := 0
+		for i < 2 {
+			prLine(size+i*4, start+i*4, end+i*4)
+			//i++
+		}
 		if start == 0 {
 			return
 		}
+		start -= 2
+		end += 2
 		fmt.Println()
 	}
 
