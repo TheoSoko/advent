@@ -24,7 +24,7 @@ func main() {
 		i := 0
 		for i < 2 {
 			prLine(size+i*4, start+i*4, end+i*4)
-			//i++
+			//i++ 🛷 🌨❄☃ ⛄
 		}
 		if start == 0 {
 			return
