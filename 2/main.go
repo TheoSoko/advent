@@ -95,7 +95,7 @@ func main() {
 
 	fmt.Println("\n Aucune importance, le jeu se déroulera selon le \"guide de stratégie\" de toutes façons 🥴")
 
-	file, err := os.Open("C:/go-projects/advent/3/strategy_guide.txt")
+	file, err := os.Open("C:/go-projects/advent/2/strategy_guide.txt")
 	defer file.Close()
 	if err != nil {
 		fmt.Println("Err à l'ouverture du fichier")
@@ -107,17 +107,47 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		moves := strings.Fields(line)
 		var userMove string
 		var compMove string
-		for key, val := range choices {
-			if val.compChar == moves[0] {
-				compMove = key
-			}
-			if val.userChar == moves[1] {
-				userMove = key
+
+		game1 := func() {
+			moves := strings.Fields(line)
+			for name, val := range choices {
+				if moves[0] == val.compChar {
+					compMove = name
+				}
+				if moves[1] == val.userChar {
+					userMove = name
+				}
 			}
 		}
+		game2 := func() {
+			input := strings.Fields(line)
+			for name, val := range choices {
+				if input[0] == val.compChar {
+					compMove = name
+				}
+			}
+			// To get right result
+			if input[1] == "X" {
+				userMove = choices[compMove].winsOver
+			} else if input[1] == "Y" {
+				userMove = compMove
+			} else if input[1] == "Z" {
+				userMove = choices[compMove].beatenBy
+			} else {
+				panic("No match for second letter line input")
+			}
+		}
+
+		if true {
+			game2()
+		} else {
+			game1()
+		}
+
+		//fmt.Println("userMove: ", userMove, "compMove: ", compMove)
+
 		_, userPoints := gameEval(userMove, compMove)
 		totalPoints += userPoints
 	}

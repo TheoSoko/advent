@@ -47,7 +47,6 @@ func main() {
 			if i == 0 {
 				fmt.Println("char ==", char , "pos == ", pos, "under-half : ", pos < half)
 			}
-
 		}
 
 		//fmt.Println("half is  : ", half)
@@ -71,7 +70,6 @@ func main() {
 		}
 
 		//fmt.Println("oddOnes : ", oddOnes)
-
 	}
 
 	// Getting the priority sum thing
