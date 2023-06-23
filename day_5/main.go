@@ -21,51 +21,53 @@ func main() {
 
 	scanner := bufio.NewScanner(crates)
 
-	//cratesPiles := make([][8]rune, 9)
-	cratesPiles := makeSlice()
-	//cratesPilesR := makeSlice()
-	
+	cratesPiles := make([][]rune, 9)
+
 	lineCount := 0
 	readingTable := true
+	moveCount := 1
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		if readingTable {
 			for i, char := range line {
+				if char == '[' {
+					pos := int(math.Floor(float64(i / 4)))                       // New [letter] every 4 chars, so i / 4 == cratePiles[n]
+					cratesPiles[pos] = append(cratesPiles[pos], rune(line[i+1])) // i+1 is the letter
+				}
 				if char == '1' && i == 1 {
 					readingTable = false
+					reverse(cratesPiles)
 					break
-				}
-				if char == '[' {
-					pos := int(math.Floor(float64(i / 4)))        // New [letter] every 4 chars, so i / 4 == cratePiles[n]
-					cratesPiles[pos][lineCount] = rune(line[i+1]) // i+1 is the letter
 				}
 			}
 			lineCount++
 		}
 
 		if !readingTable {
-			reverse(cratesPiles)
 
 			if len(line) == 0 || line[0] != 'm' {
 				continue
 			}
 
-			move, _ := strconv.Atoi(string(line[indexAfterWord(line, "move")]))
-			intFrom, _ := strconv.Atoi(string(line[indexAfterWord(line, "from")]))
-			intTo, _ := strconv.Atoi(string(line[indexAfterWord(line, "to")]))
+			move, _ := strconv.Atoi(numAfterWord(line, "move"))
+			from, _ := strconv.Atoi(numAfterWord(line, "from"))
+			to, _ := strconv.Atoi(numAfterWord(line, "to"))
 
-			fmt.Sprintln("move: ", move)
-			fmt.Sprintln("from: ", intFrom)
-			fmt.Sprintln("to: ", intTo)
+			pileFrom := cratesPiles[from-1]
 
-			to := cratesPiles[intTo - 1]
-			from := cratesPiles[intFrom - 1]
+			elementsFrom := []rune{}
+			for i := 1; i <= move; i++ {
+				elementsFrom = append(elementsFrom, pileFrom[len(pileFrom)-i])
+			}
 
-			cratesPiles[intTo - 1] = append(to, from[len(from)-1])
-			
-			//fmt.Println("Moved last of cratesPilesR[", )
+			cratesPiles[to-1] = append(cratesPiles[to-1], elementsFrom...) // Appends n element of "from" to "to" (n being "move")
+			cratesPiles[from-1] = pileFrom[:(len(pileFrom) - move)]        // Reassign the origin pile with a copy of itself - cutted elements
+
+			//fmt.Println("cratesPiles[", to-1, "] == ", string(cratesPiles[to-1]))
+
+			moveCount++
 		}
 	}
 
@@ -73,54 +75,8 @@ func main() {
 		fmt.Println(scanner.Err().Error())
 	}
 
-		/*
-		fmt.Print("cratesPiles[0][0] : ", string(cratesPiles[0][0]), "\n")
-		fmt.Print("cratesPiles[0][7] : ", string(cratesPiles[0][7]), "\n")
-		fmt.Print("cratesPiles[8][0] : ", string(cratesPiles[8][0]), "\n")
-		fmt.Print("cratesPiles[8][7] : ", string(cratesPiles[8][7]), "\n")
-		fmt.Println()
-		*/
-		/*
-		fmt.Print("cratesPilesR[0][0] : ", string(cratesPilesR[0][0]), "\n")
-		fmt.Print("cratesPilesR[0][7] : ", string(cratesPilesR[0][7]), "\n")
-		fmt.Print("cratesPilesR[8][0] : ", string(cratesPilesR[8][0]), "\n")
-		fmt.Print("cratesPilesR[8][7] : ", string(cratesPilesR[8][7]), "\n")
-		*/
+	printCrates(cratesPiles)
+	fmt.Print("\n\n")
+	printTopChars(cratesPiles)
 }
 
-func indexAfterWord(s string, sub string) int {
-	subCounter := 0
-	for i, c := range s {
-		if c == rune(sub[subCounter]) {
-			subCounter++
-		} else {
-			subCounter = 0
-		}
-		if subCounter == len(sub) {
-			return i + 2
-		}
-	}
-	return 0
-}
-
-func reverse(a [][]rune) [][]rune {
-	for i, a2 := range a {
-		for                             //
-		left, right := 0, len(a2)-1;    //
-		left < right;                   //
-		left, right = left+1, right-1 { //
-			a[i][left], a[i][right] = a2[right], a2[left]
-		}
-		a[i] = a2
-	}
-	return a
-}
-
-func makeSlice() [][]rune {
-	sliceWithAlloc := make([]rune, 8, 100)
-	slice := make([][]rune, 9)
-	for i := range slice {
-		slice[i] = sliceWithAlloc
-	}
-	return slice
-}
