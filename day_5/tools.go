@@ -69,11 +69,15 @@ func printTopChars(a [][]rune) {
 }
 
 func printCrates(crates [][]rune) {
+	longestPile := 0
 	for i := 1; i <= len(crates); i++ {
 		fmt.Print(" ", i, "  ")
+		if len(crates[i-1]) > longestPile {
+			longestPile = len(crates[i-1])
+		}
 	}
 	fmt.Println()
-	for i := 0; i < 8; i++ {
+	for i := 0; i < longestPile; i++ {
 		for _, pile := range crates {
 			if i >= len(pile) {
 				fmt.Print("    ")

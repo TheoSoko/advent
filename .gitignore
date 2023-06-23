@@ -1,3 +1,5 @@
 */*.exe
 /*.exe
 *.exe
+/routines
+/_routines
