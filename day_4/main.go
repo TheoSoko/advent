@@ -71,7 +71,7 @@ func isRangeContained(n1, n1b, n2, n2b int) bool {
 }
 
 func doRangesOverlap(n1, n1b, n2, n2b int) bool {
-	if n1 <= n2 && n2 <= n1b { // 4-7, 3-5
+	if n1 <= n2 && n2 <= n1b { // 3-5, 4-7
 		return true // n2 is between 1 and 1bis
 	}
 	if n2 <= n1 && n1 <= n2b { // 4-7, 3-5
