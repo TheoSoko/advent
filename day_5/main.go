@@ -57,12 +57,16 @@ func main() {
 
 			pileFrom := cratesPiles[from-1]
 
+			/*
 			elementsFrom := []rune{}
 			for i := 1; i <= move; i++ {
 				elementsFrom = append(elementsFrom, pileFrom[len(pileFrom)-i])
 			}
+			*/
 
-			cratesPiles[to-1] = append(cratesPiles[to-1], elementsFrom...) // Appends n element of "from" to "to" (n being "move")
+			cratesPiles[to-1] = append(cratesPiles[to-1], pileFrom[len(pileFrom)-move:]...)
+			//cratesPiles[to-1] = append(cratesPiles[to-1], elementsFrom...) // Appends n element of "from" to "to" (n being "move")
+
 			cratesPiles[from-1] = pileFrom[:(len(pileFrom) - move)]        // Reassign the origin pile with a copy of itself - cutted elements
 
 			//fmt.Println("cratesPiles[", to-1, "] == ", string(cratesPiles[to-1]))
