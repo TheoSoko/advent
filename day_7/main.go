@@ -14,7 +14,7 @@ type Dir struct {
 	Name     string
 	Size     int
 	Contains map[string]Dir
-	Parent   string
+	Parent   uuid.UUID
 	id       uuid.UUID
 }
 
@@ -55,13 +55,13 @@ func navigate(scanner *bufio.Scanner) {
 
 		debugCount++
 	}
-
+/*
 	for _, d := range nav.DirList {
 		fmt.Println("Dir ", d.Name)
 		fmt.Println("Size ", d.Size)
 		fmt.Println()
 	}
-
+*/
 }
 
 func (nav *Navigating) getnavItem(line string) {
@@ -97,6 +97,7 @@ func (nav *Navigating) getnavItem(line string) {
 					log.Fatal(err.Error())
 				}
 				fmt.Println("moving up to ", parent.Name)
+				//fmt.Println(parent.Name, " size is ", parent.Size)
 				nav.CurrentDir = parent
 				return
 			}
@@ -107,7 +108,7 @@ func (nav *Navigating) getnavItem(line string) {
 				nav.CurrentDir = dest
 			}
 			id := uuid.New()
-			nav.CurrentDir = Dir{Name: dirName, id: id, Size: 0, Parent: nav.CurrentDir.Name, Contains: make(map[string]Dir)}
+			nav.CurrentDir = Dir{Name: dirName, id: id, Size: 0, Parent: nav.CurrentDir.id, Contains: make(map[string]Dir)}
 			nav.DirList = append(nav.DirList, nav.CurrentDir)
 
 			fmt.Println("currentDir", nav.CurrentDir.Name, "has parent ", nav.CurrentDir.Parent)
@@ -119,7 +120,7 @@ func (nav *Navigating) getnavItem(line string) {
 func (nav *Navigating) findParentDir(current Dir) (Dir, error) {
 	for _, dir := range nav.DirList {
 		_, ok := dir.Contains[current.Name]
-		if ok && dir.Name == current.Parent {
+		if ok && current.Parent == dir.id {
 			return dir, nil
 		}
 	}
@@ -148,7 +149,7 @@ func (nav *Navigating) findChildDirs(dirName string) map[string]Dir {
 
 func (nav *Navigating) getDir(dirName string, current Dir) (Dir, bool) {
 	for _, dir := range nav.DirList {
-		if dir.Name == dirName && dir.Parent == current.Name {
+		if dir.Name == dirName && dir.Parent == current.id {
 			return dir, true
 		}
 	}
