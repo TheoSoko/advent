@@ -20,7 +20,7 @@ type Dir struct {
 
 type Navigating struct {
 	DirList    []Dir
-	SmallDirs  map[string]int
+	SmallDirs  []Dir
 	CurrentDir Dir
 }
 
@@ -42,9 +42,10 @@ func main() {
 }
 
 func navigate(scanner *bufio.Scanner) {
+	root := Dir{Name: "root", Size: 0, id: uuid.New(), Contains: make(map[string]Dir)}
 	nav := Navigating{
-		DirList:    []Dir{{Name: "root", Size: 0, Contains: make(map[string]Dir)}},
-		CurrentDir: Dir{Name: "root", Size: 0, id: uuid.New(), Contains: make(map[string]Dir)},
+		DirList:    []Dir{root},
+		CurrentDir: root,
 	}
 
 	debugCount := 0
@@ -52,16 +53,35 @@ func navigate(scanner *bufio.Scanner) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		nav.getnavItem(line)
-
 		debugCount++
 	}
-/*
+
+	// getRoot()
 	for _, d := range nav.DirList {
-		fmt.Println("Dir ", d.Name)
-		fmt.Println("Size ", d.Size)
-		fmt.Println()
+		//fmt.Println("Dir ", d.Name)
+		//fmt.Println("Size ", d.Size)
+		
+		if nav.getTotalSize(d, d.Size) <= 100000 {
+			nav.SmallDirs = append(nav.SmallDirs, d)
+		}
 	}
-*/
+
+	total := 0
+	for _, d := range nav.SmallDirs{
+		fmt.Println("small dir", d.Name ,"size == ", d.Size)
+		total += d.Size
+	}
+
+	fmt.Println("Total sum of the sizes of directories <= 100000 : ", total)
+	fmt.Println("SmallDirs length == ", len(nav.SmallDirs))
+	fmt.Println("DirList length == ", len(nav.DirList))
+	fmt.Println()
+
+	pcqjnl := nav.getDirsWithName("root")
+	for _, d := range pcqjnl {
+		fmt.Println("root.size == ", d.Size)
+	}
+
 }
 
 func (nav *Navigating) getnavItem(line string) {
@@ -84,8 +104,10 @@ func (nav *Navigating) getnavItem(line string) {
 
 	if itemType == "$" {
 		itemType, pos2 := extractStr(line, pos)
+		// Change Directory
 		if itemType == "cd" {
-			nav.updateDirList(nav.CurrentDir) // UPDATE DIRECTORY LIST
+			// UPDATE DIRECTORY LIST
+			nav.updateDirList(nav.CurrentDir) 
 
 			dirName, _ := extractStr(line, pos2)
 
@@ -103,7 +125,7 @@ func (nav *Navigating) getnavItem(line string) {
 			}
 
 			// Change or Create Directory
-			dest, ok := nav.getDir(dirName, nav.CurrentDir)
+			dest, ok := nav.getChildDir(dirName, nav.CurrentDir)
 			if ok {
 				nav.CurrentDir = dest
 			}
@@ -117,57 +139,6 @@ func (nav *Navigating) getnavItem(line string) {
 	}
 }
 
-func (nav *Navigating) findParentDir(current Dir) (Dir, error) {
-	for _, dir := range nav.DirList {
-		_, ok := dir.Contains[current.Name]
-		if ok && current.Parent == dir.id {
-			return dir, nil
-		}
-	}
 
-	return Dir{}, fmt.Errorf(fmt.Sprint("Le dossier ", current.Name, " n'a pas de parent"))
-}
 
-func (nav *Navigating) dirExists(d Dir) bool {
-	for _, dir := range nav.DirList {
-		if dir.Name == d.Name && dir.Size == d.Size && dir.Parent == d.Parent {
-			return true
-		}
-	}
-	return false
-}
 
-func (nav *Navigating) findChildDirs(dirName string) map[string]Dir {
-	for _, dir := range nav.DirList {
-		if dir.Name == dirName {
-			return dir.Contains
-		}
-	}
-
-	return make(map[string]Dir)
-}
-
-func (nav *Navigating) getDir(dirName string, current Dir) (Dir, bool) {
-	for _, dir := range nav.DirList {
-		if dir.Name == dirName && dir.Parent == current.id {
-			return dir, true
-		}
-	}
-
-	return Dir{}, false
-}
-
-func (nav *Navigating) updateDirList(d Dir) {
-	for _, dir := range nav.DirList {
-		if dir.id == d.id {
-			dir = d
-		}
-	}
-
-	nav.DirList = append(nav.DirList, d)
-}
-
-/*childDirs := nav.findChildDirs("lrrl")
-for _, childD := range childDirs {
-	fmt.Println("dir \"lrrl\" contains ", childD.Name) // lrrl should contain dcfmtw
-}*/
